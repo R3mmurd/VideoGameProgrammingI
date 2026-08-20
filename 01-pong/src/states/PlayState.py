@@ -22,6 +22,7 @@ from src.rendering import render_table
 class PlayState(BaseState):
     def enter(self, pong) -> None:
         self.pong = pong
+        self.AI_ERROR = 0.0 # AI error factor, to make the game winnable
 
     def update(self, dt: float) -> None:
         pong = self.pong
@@ -29,6 +30,17 @@ class PlayState(BaseState):
         pong.player2.update(dt)
         pong.ball.update(dt)
 
+        # Move player2 if ball is moving towards it, otherwise stop it. (bot)
+        if pong.ball.vx > 0 and pong.ball.x > settings.VIRTUAL_WIDTH / 2:
+            if pong.ball.y < pong.player2.y - self.AI_ERROR * settings.PADDLE_HEIGHT:
+                pong.player2.vy = -settings.PADDLE_SPEED
+            elif pong.ball.y + pong.ball.height > pong.player2.y + settings.PADDLE_HEIGHT * (1 + self.AI_ERROR):
+                pong.player2.vy = settings.PADDLE_SPEED
+            else:
+                pong.player2.vy = 0
+        else:
+            pong.player2.vy = 0
+        
         ball_rect = pong.ball.get_rect()
 
         if ball_rect.left > settings.VIRTUAL_WIDTH:
@@ -58,6 +70,7 @@ class PlayState(BaseState):
             pong.ball.x = player1_rect.right
             pong.ball.vx *= -1.03
             self._randomize_vy()
+            self.AI_ERROR = random.uniform(0, 0.5)
         elif ball_rect.colliderect(player2_rect):
             settings.SOUNDS["paddle_hit"].play()
             pong.ball.x = player2_rect.left - pong.ball.width
@@ -112,12 +125,12 @@ class PlayState(BaseState):
                 sign = -1 if input_id == "p1_up" else 1
                 if pong.player1.vy == sign * settings.PADDLE_SPEED:
                     pong.player1.vy = 0
-        elif input_id in ("p2_up", "p2_down"):
-            if input_data.pressed:
-                pong.player2.vy = (
-                    -settings.PADDLE_SPEED if input_id == "p2_up" else settings.PADDLE_SPEED
-                )
-            elif input_data.released:
-                sign = -1 if input_id == "p2_up" else 1
-                if pong.player2.vy == sign * settings.PADDLE_SPEED:
-                    pong.player2.vy = 0
+        # elif input_id in ("p2_up", "p2_down"):
+            # if input_data.pressed:
+            #     pong.player2.vy = (
+            #         -settings.PADDLE_SPEED if input_id == "p2_up" else settings.PADDLE_SPEED
+            #     )
+            # elif input_data.released:
+            #     sign = -1 if input_id == "p2_up" else 1
+            #     if pong.player2.vy == sign * settings.PADDLE_SPEED:
+            #         pong.player2.vy = 0
