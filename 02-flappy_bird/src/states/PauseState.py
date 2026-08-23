@@ -20,9 +20,12 @@ import settings
 from src.Bird import Bird
 from src.World import World
 
+from src.DifficultyStrategy import DifficultyStrategy, EasyStrategy
+
 
 class PauseState(BaseState):
-    def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0) -> None:
+    def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0, strategy: Optional[DifficultyStrategy] = None) -> None:
+        self.strategy = strategy if strategy is not None else EasyStrategy()
         self.world = world if world is not None else World()
         self.bird = bird if bird is not None else Bird(
             settings.VIRTUAL_WIDTH / 2 - settings.BIRD_WIDTH / 2,
@@ -67,5 +70,5 @@ class PauseState(BaseState):
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "pause" and input_data.pressed:
-            self.state_machine.change("playing", self.world, self.bird, self.score)
+            self.state_machine.change("playing", self.world, self.bird, self.score, self.strategy)
             

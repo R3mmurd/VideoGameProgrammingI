@@ -1,15 +1,4 @@
-"""
-ISPPV1 2023
-Study Case: Flappy Bird
-
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
-
-This file contains the definition of the class PlayingState.
-"""
-
 from typing import Optional
-
 import pygame
 
 from gale.input_handler import InputData
@@ -19,10 +8,14 @@ from gale.text import render_text
 import settings
 from src.Bird import Bird
 from src.World import World
+from src.DifficultyStrategy import DifficultyStrategy, EasyStrategy
 
 
 class PlayingState(BaseState):
-    def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0) -> None:
+    def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0, strategy: Optional[DifficultyStrategy] = None,
+    ) -> None:
+        self.strategy = strategy if strategy is not None else EasyStrategy()
+
         self.world = world if world is not None else World()
         self.world.reset(True)
         self.bird = bird if bird is not None else Bird(
@@ -34,6 +27,7 @@ class PlayingState(BaseState):
         self.score = score
 
     def update(self, dt: float) -> None:
+        self.strategy.update(dt)
         self.bird.update(dt)
         self.world.update(dt)
 
@@ -64,4 +58,4 @@ class PlayingState(BaseState):
         if input_id == "jump" and input_data.pressed:
             self.bird.jump()
         elif input_id == "pause" and input_data.pressed:
-            self.state_machine.change("pause", self.world, self.bird, self.score)
+            self.state_machine.change("pause", self.world, self.bird, self.score, strategy=self.strategy)
