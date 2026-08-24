@@ -8,9 +8,47 @@ alejandro.j.mujic4@gmail.com
 This file contains the definition for creatures.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict, List
 
 from src.states.entities import creatures_states
+
+# Frame layout in creatures.png for the flying-creature row: two flap
+# frames (fly) plus a third, distinct front-facing pose reused as a
+# static "stunned" frame for FlyingFallState.
+FLYING_CREATURES: List[Dict[str, Any]] = [
+    {
+        "texture_id": "creatures",
+        "fly_speed": 40,
+        "animation_defs": {
+            "fly": {"frames": [32, 33], "interval": 0.12},
+            "fall": {"frames": [34]},
+        },
+    },
+    {
+        "texture_id": "creatures",
+        "fly_speed": 45,
+        "animation_defs": {
+            "fly": {"frames": [35, 36], "interval": 0.12},
+            "fall": {"frames": [37]},
+        },
+    },
+    {
+        "texture_id": "creatures",
+        "fly_speed": 35,
+        "animation_defs": {
+            "fly": {"frames": [40, 41], "interval": 0.12},
+            "fall": {"frames": [42]},
+        },
+    },
+    {
+        "texture_id": "creatures",
+        "fly_speed": 50,
+        "animation_defs": {
+            "fly": {"frames": [43, 44], "interval": 0.12},
+            "fall": {"frames": [45]},
+        },
+    },
+]
 
 CREATURES: Dict[int, Dict[str, Any]] = {
     48: {

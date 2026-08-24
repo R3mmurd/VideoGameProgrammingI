@@ -34,6 +34,17 @@ class Entity:
         # In top-down games, there are four directions instead of two.
         self.direction = "down"
 
+        # Movement intent, updated by MOVE_*/STOP_MOVE_* Commands -- from
+        # InputHandler for the player, from process_ai for AI-controlled
+        # entities -- and resolved into self.direction/movement by each
+        # entity's own walk state, every frame.
+        self.held = {
+            "move_left": False,
+            "move_right": False,
+            "move_up": False,
+            "move_down": False,
+        }
+
         self.x = x
         self.y = y
         self.width = width

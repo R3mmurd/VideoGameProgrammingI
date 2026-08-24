@@ -13,10 +13,26 @@ from typing import TypeVar
 
 import pygame
 
+from src import commands
 from src.states.entity.BaseEntityState import BaseEntityState
 from src.states.entity.movement import move_and_bump
 
 _DIRECTIONS = ["left", "right", "up", "down"]
+
+# The same Command instances Player binds to InputHandler -- executed
+# directly from process_ai instead of through a press/release event.
+_MOVE_COMMANDS = {
+    "left": commands.MOVE_LEFT,
+    "right": commands.MOVE_RIGHT,
+    "up": commands.MOVE_UP,
+    "down": commands.MOVE_DOWN,
+}
+_STOP_COMMANDS = (
+    commands.STOP_MOVE_LEFT,
+    commands.STOP_MOVE_RIGHT,
+    commands.STOP_MOVE_UP,
+    commands.STOP_MOVE_DOWN,
+)
 
 
 class EntityWalkState(BaseEntityState):
@@ -31,13 +47,34 @@ class EntityWalkState(BaseEntityState):
         self.bumped = False
 
     def update(self, dt: float) -> None:
-        self.bumped = move_and_bump(self.entity, dt)
+        entity = self.entity
+        held = entity.held
+
+        if held["move_left"]:
+            entity.direction = "left"
+        elif held["move_right"]:
+            entity.direction = "right"
+        elif held["move_up"]:
+            entity.direction = "up"
+        elif held["move_down"]:
+            entity.direction = "down"
+
+        self.bumped = move_and_bump(entity, dt)
+
+    def _pick_direction(self) -> None:
+        # Only one direction is ever held at a time -- release the other
+        # three before pressing the new one, the same way a player would.
+        for stop in _STOP_COMMANDS:
+            stop.execute(self.entity)
+
+        direction = random.choice(_DIRECTIONS)
+        _MOVE_COMMANDS[direction].execute(self.entity)
+        self.entity.change_animation(f"walk-{direction}")
 
     def process_ai(self, room: TypeVar("Room"), dt: float) -> None:
         if self.move_duration == 0 or self.bumped:
             self.move_duration = random.randint(1, 5)
-            self.entity.direction = random.choice(_DIRECTIONS)
-            self.entity.change_animation(f"walk-{self.entity.direction}")
+            self._pick_direction()
         elif self.movement_timer > self.move_duration:
             self.movement_timer = 0
 
@@ -47,8 +84,7 @@ class EntityWalkState(BaseEntityState):
                 return
 
             self.move_duration = random.randint(1, 5)
-            self.entity.direction = random.choice(_DIRECTIONS)
-            self.entity.change_animation(f"walk-{self.entity.direction}")
+            self._pick_direction()
 
         self.movement_timer += dt
 

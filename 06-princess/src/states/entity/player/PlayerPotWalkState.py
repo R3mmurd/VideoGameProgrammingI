@@ -12,7 +12,6 @@ from typing import Any, TypeVar
 
 import pygame
 
-from gale.input_handler import InputData
 from gale.state import StateMachine
 
 import settings
@@ -40,6 +39,17 @@ class PlayerPotWalkState(BaseEntityState):
 
     def update(self, dt: float) -> None:
         player = self.entity
+
+        player.sword_requested = False
+
+        if player.interact_requested:
+            player.interact_requested = False
+            self.dungeon.current_room.projectiles.append(
+                Projectile(self.pot, player.direction)
+            )
+            player.change_state("idle")
+            return
+
         held = player.held
 
         if held["move_left"]:
@@ -109,13 +119,6 @@ class PlayerPotWalkState(BaseEntityState):
                     self.dungeon.begin_shifting(0, settings.VIRTUAL_HEIGHT)
 
             player.y -= speed * dt
-
-    def on_input(self, input_id: str, input_data: InputData) -> None:
-        if input_id == "enter" and input_data.pressed:
-            self.dungeon.current_room.projectiles.append(
-                Projectile(self.pot, self.entity.direction)
-            )
-            self.entity.change_state("idle")
 
     def render(self, surface: pygame.Surface) -> None:
         anim = self.entity.current_animation

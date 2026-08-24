@@ -44,6 +44,11 @@ GRAVITY = 980
 
 CAMERA_FOLLOW_RATE = 8.0
 
+# Random delay range (seconds) between one flying creature leaving the
+# level and the next one spawning.
+FLYING_CREATURE_MIN_SPAWN_DELAY = 4
+FLYING_CREATURE_MAX_SPAWN_DELAY = 9
+
 NUM_LEVELS = 1
 
 BASE_DIR = pathlib.Path(__file__).parent

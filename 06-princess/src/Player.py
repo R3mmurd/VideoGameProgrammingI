@@ -10,8 +10,21 @@ This file contains the class Player.
 
 from typing import Any
 
+from gale.command import CommandBindings
 from gale.input_handler import InputData
 
+from src.commands import (
+    INTERACT,
+    MOVE_DOWN,
+    MOVE_LEFT,
+    MOVE_RIGHT,
+    MOVE_UP,
+    STOP_MOVE_DOWN,
+    STOP_MOVE_LEFT,
+    STOP_MOVE_RIGHT,
+    STOP_MOVE_UP,
+    SWORD,
+)
 from src.Entity import Entity
 
 
@@ -19,16 +32,21 @@ class Player(Entity):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        # Tracks which movement keys are currently held down (as opposed to
-        # sword/take, which are edge-triggered through on_input directly),
-        # since every player state polls this once per frame in the same
-        # left/right/up/down priority order the original game used.
-        self.held = {
-            "move_left": False,
-            "move_right": False,
-            "move_up": False,
-            "move_down": False,
-        }
+        # Edge-triggered intent: sword/take are one-shot actions resolved
+        # (and cleared) by whichever player state's update() consumes them,
+        # the same way jump_requested works in 05-super_martian.
+        self.sword_requested = False
+        self.interact_requested = False
+
+        self.command_bindings = CommandBindings()
+        self.command_bindings.bind("move_left", press=MOVE_LEFT, release=STOP_MOVE_LEFT)
+        self.command_bindings.bind(
+            "move_right", press=MOVE_RIGHT, release=STOP_MOVE_RIGHT
+        )
+        self.command_bindings.bind("move_up", press=MOVE_UP, release=STOP_MOVE_UP)
+        self.command_bindings.bind("move_down", press=MOVE_DOWN, release=STOP_MOVE_DOWN)
+        self.command_bindings.bind("sword", press=SWORD)
+        self.command_bindings.bind("enter", press=INTERACT)
 
     def collides(self, target: Any) -> bool:
         """
@@ -47,10 +65,4 @@ class Player(Entity):
         )
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
-        if input_id in self.held:
-            if input_data.pressed:
-                self.held[input_id] = True
-            elif input_data.released:
-                self.held[input_id] = False
-        else:
-            self.state_machine.on_input(input_id, input_data)
+        self.command_bindings.dispatch(self, input_id, input_data)

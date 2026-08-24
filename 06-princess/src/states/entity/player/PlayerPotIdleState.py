@@ -12,7 +12,6 @@ from typing import Any, TypeVar
 
 import pygame
 
-from gale.input_handler import InputData
 from gale.state import StateMachine
 
 from src.Projectile import Projectile
@@ -34,17 +33,20 @@ class PlayerPotIdleState(BaseEntityState):
         self.pot = pot
 
     def update(self, dt: float) -> None:
-        held = self.entity.held
+        self.entity.sword_requested = False
 
-        if held["move_left"] or held["move_right"] or held["move_up"] or held["move_down"]:
-            self.entity.change_state("pot-walk", pot=self.pot)
-
-    def on_input(self, input_id: str, input_data: InputData) -> None:
-        if input_id == "enter" and input_data.pressed:
+        if self.entity.interact_requested:
+            self.entity.interact_requested = False
             self.dungeon.current_room.projectiles.append(
                 Projectile(self.pot, self.entity.direction)
             )
             self.entity.change_state("idle")
+            return
+
+        held = self.entity.held
+
+        if held["move_left"] or held["move_right"] or held["move_up"] or held["move_down"]:
+            self.entity.change_state("pot-walk", pot=self.pot)
 
     def render(self, surface: pygame.Surface) -> None:
         anim = self.entity.current_animation

@@ -10,21 +10,31 @@ This file contains the class SnailWalkState.
 
 from gale.tilemap import CollisionType, collision_type_at
 
+from src import commands
 from src.states.entities.BaseEntityState import BaseEntityState
 
 
 class SnailWalkState(BaseEntityState):
+    # Unlike Player, this creature's sprite defaults to facing left, so
+    # flipped == True means moving right here -- the opposite convention
+    # from Player. That is why MOVE_LEFT/MOVE_RIGHT only set
+    # move_direction: flipped stays a per-entity concern resolved here.
     def enter(self, flipped: bool) -> None:
         self.entity.change_animation("walk")
+        (commands.MOVE_RIGHT if flipped else commands.MOVE_LEFT).execute(self.entity)
         self.entity.flipped = flipped
-        self.entity.vx = -self.entity.walk_speed
-        if self.entity.flipped:
-            self.entity.vx *= -1
+        self.entity.vx = self.entity.walk_speed * self.entity.move_direction
 
     def update(self, dt: float) -> None:
         if self.check_boundary():
-            self.entity.vx *= -1
+            (
+                commands.MOVE_LEFT
+                if self.entity.move_direction > 0
+                else commands.MOVE_RIGHT
+            ).execute(self.entity)
             self.entity.flipped = not self.entity.flipped
+
+        self.entity.vx = self.entity.walk_speed * self.entity.move_direction
 
     def check_boundary(self) -> bool:
         world_width = self.entity.tilemap.pixel_width

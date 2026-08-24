@@ -12,7 +12,6 @@ from typing import TypeVar
 
 import pygame
 
-from gale.input_handler import InputData
 from gale.state import StateMachine
 
 import settings
@@ -64,6 +63,13 @@ class PlayerSwingSwordState(BaseEntityState):
         self.entity.current_animation.reset()
 
     def update(self, dt: float) -> None:
+        self.entity.interact_requested = False
+
+        if self.entity.sword_requested:
+            self.entity.sword_requested = False
+            self.entity.change_state("swing-sword")
+            return
+
         for entity in self.dungeon.current_room.entities:
             if entity.collides(self.sword_hitbox):
                 entity.damage(1)
@@ -72,10 +78,6 @@ class PlayerSwingSwordState(BaseEntityState):
         if self.entity.current_animation.times_played > 0:
             self.entity.current_animation.times_played = 0
             self.entity.change_state("idle")
-
-    def on_input(self, input_id: str, input_data: InputData) -> None:
-        if input_id == "sword" and input_data.pressed:
-            self.entity.change_state("swing-sword")
 
     def render(self, surface: pygame.Surface) -> None:
         anim = self.entity.current_animation

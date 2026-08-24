@@ -10,9 +10,11 @@ This file contains the class Player.
 
 from typing import TypeVar
 
+from gale.command import CommandBindings
 from gale.input_handler import InputData
 
 from src.GameEntity import GameEntity
+from src.commands import JUMP, MOVE_LEFT, MOVE_RIGHT, STOP_MOVE_LEFT, STOP_MOVE_RIGHT
 from src.states.entities import player_states
 
 
@@ -41,5 +43,12 @@ class Player(GameEntity):
         self.score = 0
         self.coins_counter = {54: 0, 55: 0, 61: 0, 62: 0}
 
+        self.command_bindings = CommandBindings()
+        self.command_bindings.bind("move_left", press=MOVE_LEFT, release=STOP_MOVE_LEFT)
+        self.command_bindings.bind(
+            "move_right", press=MOVE_RIGHT, release=STOP_MOVE_RIGHT
+        )
+        self.command_bindings.bind("jump", press=JUMP)
+
     def on_input(self, input_id: str, input_data: InputData) -> None:
-        self.state_machine.on_input(input_id, input_data)
+        self.command_bindings.dispatch(self, input_id, input_data)

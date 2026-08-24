@@ -47,6 +47,9 @@ class PlayerPotLiftState(BaseEntityState):
         )
 
     def update(self, dt: float) -> None:
+        self.entity.sword_requested = False
+        self.entity.interact_requested = False
+
         if self.entity.current_animation.times_played > 0:
             self.entity.current_animation.times_played = 0
             self.entity.change_state("pot-idle", pot=self.pot)

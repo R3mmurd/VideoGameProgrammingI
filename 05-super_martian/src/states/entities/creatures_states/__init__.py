@@ -8,6 +8,8 @@ alejandro.j.mujic4@gmail.com
 This module contains all of the creature states.
 """
 
+from src.states.entities.creatures_states.FlyingFallState import FlyingFallState
+from src.states.entities.creatures_states.FlyState import FlyState
 from src.states.entities.creatures_states.SnailWalkState import SnailWalkState
 
-(SnailWalkState,)
+(FlyingFallState, FlyState, SnailWalkState)
