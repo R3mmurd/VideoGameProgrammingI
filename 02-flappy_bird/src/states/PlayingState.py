@@ -57,5 +57,15 @@ class PlayingState(BaseState):
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "jump" and input_data.pressed:
             self.bird.jump()
+        elif input_id == "move_left" and self.strategy.BIRD_HORIZONTAL_MOVEMENT:
+            if input_data.pressed:
+                self.bird.vx = -settings.BIRD_VELOCITY_X
+            elif input_data.released and self.bird.vx < 0:
+                self.bird.vx = 0
+        elif input_id == "move_right" and self.strategy.BIRD_HORIZONTAL_MOVEMENT:
+            if input_data.pressed:
+                self.bird.vx = settings.BIRD_VELOCITY_X
+            elif input_data.released and self.bird.vx > 0:
+                self.bird.vx = 0
         elif input_id == "pause" and input_data.pressed:
             self.state_machine.change("pause", self.world, self.bird, self.score, strategy=self.strategy)

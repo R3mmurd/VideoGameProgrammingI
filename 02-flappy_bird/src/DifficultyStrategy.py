@@ -15,6 +15,7 @@ class DifficultyStrategy(ABC):
 class EasyStrategy(DifficultyStrategy):
     def apply_settings(self) -> None:
         settings.TIME_TO_SPAWN_LOGS = 1.5
+        self.BIRD_HORIZONTAL_MOVEMENT = False
 
     def update(self, dt: float) -> None:
         # Standard behavior, no dynamic scaling needed
@@ -23,6 +24,7 @@ class EasyStrategy(DifficultyStrategy):
 class HardStrategy(DifficultyStrategy):
     def apply_settings(self) -> None:
         settings.TIME_TO_SPAWN_LOGS = 1.5
+        self.BIRD_HORIZONTAL_MOVEMENT = True
 
     def update(self, dt: float) -> None:
         settings.TIME_TO_SPAWN_LOGS = random.uniform(0.8, 3)

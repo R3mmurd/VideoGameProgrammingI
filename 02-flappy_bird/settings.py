@@ -22,6 +22,8 @@ input_handler.InputHandler.set_keyboard_action(input_handler.KEY_SPACE, "jump")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_UP, "jump")
 input_handler.InputHandler.set_mouse_click_action(input_handler.MOUSE_BUTTON_1, "jump")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_p, "pause")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_LEFT, "move_left")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RIGHT, "move_right")
 
 TITLE = "Flappy Bird"
 
@@ -49,6 +51,7 @@ BACK_SCROLL_SPEED = 50  # MAIN_SCROLL_SPEED / 2
 
 GRAVITY = 980
 JUMP_TAKEOFF_SPEED = GRAVITY / 6
+BIRD_VELOCITY_X = GRAVITY / 10
 
 TIME_TO_SPAWN_LOGS = 1.5
 
