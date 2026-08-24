@@ -13,6 +13,10 @@ class DifficultyStrategy(ABC):
 
 
 class EasyStrategy(DifficultyStrategy):
+    def __init__(self):
+        self.BIRD_HORIZONTAL_MOVEMENT = False
+        self.CLOSING_LOGS = False
+
     def apply_settings(self) -> None:
         settings.TIME_TO_SPAWN_LOGS = 1.5
         self.BIRD_HORIZONTAL_MOVEMENT = False
@@ -22,6 +26,10 @@ class EasyStrategy(DifficultyStrategy):
         pass
 
 class HardStrategy(DifficultyStrategy):
+    def __init__(self):
+        self.BIRD_HORIZONTAL_MOVEMENT = True
+        self.CLOSING_LOGS = True
+
     def apply_settings(self) -> None:
         settings.TIME_TO_SPAWN_LOGS = 1.5
         self.BIRD_HORIZONTAL_MOVEMENT = True

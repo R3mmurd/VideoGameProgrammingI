@@ -29,7 +29,7 @@ class PlayingState(BaseState):
     def update(self, dt: float) -> None:
         self.strategy.update(dt)
         self.bird.update(dt)
-        self.world.update(dt)
+        self.world.update(dt, self.strategy)
 
         if self.world.collides(self.bird.get_rect()):
             settings.SOUNDS["explosion"].play()

@@ -16,18 +16,21 @@ import settings
 
 
 class LogPair:
-    def __init__(self, x: float, y: float) -> None:
+    def __init__(self, x: float, y: float, is_closing_log: bool = True) -> None:
         self.x: float = x
         self.y: float = y
+        self.current_gap = settings.LOGS_GAP
+        self.is_closing_log = is_closing_log
+        self.closing = False
         self.scored: bool = False
 
     def get_top_rect(self) -> pygame.Rect:
-        return pygame.Rect(round(self.x), round(self.y), settings.LOG_WIDTH, settings.LOG_HEIGHT)
+        return pygame.Rect(round(self.x), round(self.y) - self.current_gap, settings.LOG_WIDTH, settings.LOG_HEIGHT)
 
     def get_bottom_rect(self) -> pygame.Rect:
         return pygame.Rect(
             round(self.x),
-            round(self.y + settings.LOGS_GAP + settings.LOG_HEIGHT),
+            round(self.y + settings.LOG_HEIGHT),
             settings.LOG_WIDTH,
             settings.LOG_HEIGHT,
         )
@@ -37,6 +40,15 @@ class LogPair:
 
     def update(self, dt: float) -> None:
         self.x += -settings.MAIN_SCROLL_SPEED * dt
+        if self.is_closing_log:
+            if self.closing:
+                self.current_gap = max(self.current_gap - 50 * dt, settings.BIRD_HEIGHT * 2)
+                if self.current_gap <= settings.BIRD_HEIGHT * 2:
+                    self.closing = False
+            else:
+                self.current_gap = min(self.current_gap + 50 * dt, settings.LOGS_GAP)
+                if self.current_gap >= settings.LOGS_GAP:
+                    self.closing = True
 
     def is_out_of_game(self) -> bool:
         return self.x < -settings.LOG_WIDTH
