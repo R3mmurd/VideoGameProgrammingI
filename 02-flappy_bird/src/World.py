@@ -48,10 +48,13 @@ class World:
 
             if self.logs_spawn_timer >= settings.TIME_TO_SPAWN_LOGS:
                 self.logs_spawn_timer = 0.0
+                distance = settings.MAIN_SCROLL_SPEED * settings.TIME_TO_SPAWN_LOGS
+                max_delta_y = int(distance * 0.25)
+                delta_y = random.randint(-max_delta_y, max_delta_y)
                 y = max(
                     -settings.LOG_HEIGHT + 10,
                     min(
-                        self.last_log_y + random.randint(-20, 20),
+                        self.last_log_y + delta_y,
                         settings.VIRTUAL_HEIGHT + 90 - settings.LOG_HEIGHT,
                     ),
                 )

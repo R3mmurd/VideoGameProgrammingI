@@ -14,8 +14,15 @@ class DifficultyStrategy(ABC):
 
 class EasyStrategy(DifficultyStrategy):
     def apply_settings(self) -> None:
-        settings.TIME_TO_SPAWN_LOGS = 2.0
+        settings.TIME_TO_SPAWN_LOGS = 1.5
 
     def update(self, dt: float) -> None:
         # Standard behavior, no dynamic scaling needed
         pass
+
+class HardStrategy(DifficultyStrategy):
+    def apply_settings(self) -> None:
+        settings.TIME_TO_SPAWN_LOGS = 1.5
+
+    def update(self, dt: float) -> None:
+        settings.TIME_TO_SPAWN_LOGS = random.uniform(0.8, 3)

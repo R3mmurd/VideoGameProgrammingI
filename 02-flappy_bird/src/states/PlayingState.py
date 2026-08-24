@@ -8,13 +8,13 @@ from gale.text import render_text
 import settings
 from src.Bird import Bird
 from src.World import World
-from src.DifficultyStrategy import DifficultyStrategy, EasyStrategy
+from src.DifficultyStrategy import DifficultyStrategy, HardStrategy
 
 
 class PlayingState(BaseState):
     def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0, strategy: Optional[DifficultyStrategy] = None,
     ) -> None:
-        self.strategy = strategy if strategy is not None else EasyStrategy()
+        self.strategy = strategy if strategy is not None else HardStrategy()
 
         self.world = world if world is not None else World()
         self.world.reset(True)
