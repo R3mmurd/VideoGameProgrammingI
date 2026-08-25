@@ -42,8 +42,9 @@ class LogPair:
         self.x += -settings.MAIN_SCROLL_SPEED * dt
         if self.is_closing_log:
             if self.closing:
-                self.current_gap = max(self.current_gap - 50 * dt, settings.BIRD_HEIGHT * 2)
-                if self.current_gap <= settings.BIRD_HEIGHT * 2:
+                self.current_gap = max(self.current_gap - 50 * dt, 0)
+                if self.current_gap <= 0:
+                    settings.SOUNDS["crush"].play()
                     self.closing = False
             else:
                 self.current_gap = min(self.current_gap + 50 * dt, settings.LOGS_GAP)

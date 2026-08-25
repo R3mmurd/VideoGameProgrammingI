@@ -28,7 +28,12 @@ class PlayingState(BaseState):
 
     def update(self, dt: float) -> None:
         self.strategy.update(dt)
-        self.bird.update(dt)
+        self.bird.update(dt, self.strategy.BIRD_HORIZONTAL_MOVEMENT)
+        if self.strategy.BIRD_HORIZONTAL_MOVEMENT:
+            if self.bird.x < 0:
+                self.bird.x = 0
+            elif self.bird.x + settings.BIRD_WIDTH > settings.VIRTUAL_WIDTH:
+                self.bird.x = settings.VIRTUAL_WIDTH - settings.BIRD_WIDTH
         self.world.update(dt, self.strategy)
 
         if self.world.collides(self.bird.get_rect()):

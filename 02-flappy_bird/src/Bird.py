@@ -29,7 +29,7 @@ class Bird:
     def jump(self) -> None:
         self.jumping = True
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, horizontal_movement: bool = False) -> None:
         self.vy += settings.GRAVITY * dt
 
         if self.jumping:
@@ -38,7 +38,8 @@ class Bird:
             self.jumping = False
 
         self.y += self.vy * dt
-        self.x += self.vx * dt
+        if horizontal_movement:
+            self.x += self.vx * dt
 
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(settings.TEXTURES["bird"], self.get_rect())

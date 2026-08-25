@@ -75,6 +75,7 @@ SOUNDS = {
     "explosion": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "explosion.wav"),
     "hurt": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "hurt.wav"),
     "score": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "score.wav"),
+    "crush": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "crush.wav"),
 }
 
 pygame.mixer.music.load(BASE_DIR / "assets" / "sounds" / "marios_way.ogg")
