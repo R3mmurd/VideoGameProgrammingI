@@ -22,6 +22,8 @@ class Bird:
         self.vy: float = 0.0
         self.vx: float = 0.0
         self.jumping: bool = False
+        self.invincible: bool = False
+        self.invincible_timer: float = 0.0
 
     def get_rect(self) -> pygame.Rect:
         return pygame.Rect(round(self.x), round(self.y), self.width, self.height)
@@ -30,6 +32,11 @@ class Bird:
         self.jumping = True
 
     def update(self, dt: float, horizontal_movement: bool = False) -> None:
+        if self.invincible:
+            self.invincible_timer -= dt
+            if self.invincible_timer <= 0:
+                self.invincible = False
+
         self.vy += settings.GRAVITY * dt
 
         if self.jumping:
@@ -42,4 +49,7 @@ class Bird:
             self.x += self.vx * dt
 
     def render(self, surface: pygame.Surface) -> None:
-        surface.blit(settings.TEXTURES["bird"], self.get_rect())
+        if not self.invincible:
+            surface.blit(settings.TEXTURES["bird"], self.get_rect())
+        else:
+            surface.blit(settings.TEXTURES["ghost"], self.get_rect())

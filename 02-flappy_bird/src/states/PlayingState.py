@@ -1,6 +1,8 @@
+import random
 from typing import Optional
 import pygame
 
+from gale.factory import AbstractFactory
 from gale.input_handler import InputData
 from gale.state import BaseState
 from gale.text import render_text
@@ -9,12 +11,21 @@ import settings
 from src.Bird import Bird
 from src.World import World
 from src.DifficultyStrategy import DifficultyStrategy, HardStrategy
+import src.powerups
 
 
 class PlayingState(BaseState):
-    def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0, strategy: Optional[DifficultyStrategy] = None,
+    def enter(self,
+              world: Optional[World] = None,
+              bird: Optional[Bird] = None,
+              score: int = 0,
+              strategy: Optional[DifficultyStrategy] = None,
+              powerups: Optional[list] = None
     ) -> None:
         self.strategy = strategy if strategy is not None else HardStrategy()
+
+        self.powerups = powerups if powerups is not None else []
+        self.powerups_abstract_factory = AbstractFactory("src.powerups")
 
         self.world = world if world is not None else World()
         self.world.reset(True)
@@ -36,19 +47,41 @@ class PlayingState(BaseState):
                 self.bird.x = settings.VIRTUAL_WIDTH - settings.BIRD_WIDTH
         self.world.update(dt, self.strategy)
 
-        if self.world.collides(self.bird.get_rect()):
-            settings.SOUNDS["explosion"].play()
-            settings.SOUNDS["hurt"].play()
-            self.state_machine.change("count_down")
-            return
+        
+
+        if not self.bird.invincible:
+            if self.world.collides(self.bird.get_rect()):
+                settings.SOUNDS["explosion"].play()
+                settings.SOUNDS["hurt"].play()
+                self.state_machine.change("count_down")
+                return
 
         if self.world.update_scored(self.bird.get_rect()):
             self.score += 1
             settings.SOUNDS["score"].play()
 
+            if random.random() < 0.1 and self.strategy.POWERUP_SPAWN and not self.bird.invincible:
+                self.powerups.append(
+                    self.powerups_abstract_factory.get_factory("GhostBird").create(
+                        self.bird.x, 0
+                    )
+                )
+
+        # Update powerups
+        for powerup in self.powerups:
+            powerup.update(dt)
+
+            if powerup.collides(self.bird):
+                powerup.take(self)
+
+        # Remove powerups that are not in play
+        self.powerups = [p for p in self.powerups if p.active]
+
     def render(self, surface: pygame.Surface) -> None:
         self.world.render(surface)
         self.bird.render(surface)
+        for powerup in self.powerups:
+            powerup.render(surface)
         render_text(
             surface,
             f"Score: {self.score}",
