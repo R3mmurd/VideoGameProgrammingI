@@ -31,6 +31,8 @@ class Paddle:
 
         # The paddle only move horizontally
         self.vx = 0
+        self.sticky = False
+        self.sticky_time_remaining = 0.0
 
     def resize(self, size: int) -> None:
         self.size = size
@@ -46,6 +48,11 @@ class Paddle:
         return pygame.Rect(self.x, self.y, self.width, self.height)
 
     def update(self, dt: float) -> None:
+        if self.sticky:
+            self.sticky_time_remaining = max(0.0, self.sticky_time_remaining - dt)
+            if self.sticky_time_remaining == 0.0:
+                self.sticky = False
+
         next_x = self.x + self.vx * dt
 
         if self.vx < 0:

@@ -48,6 +48,11 @@ class PlayState(BaseState):
         self.paddle.update(dt)
 
         for ball in self.balls:
+            if ball.stuck:
+                ball.x = self.paddle.x + ball.stuck_offset_x
+                ball.y = self.paddle.y - ball.height
+                continue
+
             ball.update(dt)
             ball.solve_world_boundaries()
 
@@ -55,8 +60,15 @@ class PlayState(BaseState):
             if ball.collides(self.paddle):
                 settings.SOUNDS["paddle_hit"].stop()
                 settings.SOUNDS["paddle_hit"].play()
-                ball.rebound(self.paddle)
-                ball.push(self.paddle)
+                if self.paddle.sticky:
+                    ball.stuck = True
+                    ball.stuck_offset_x = ball.x - self.paddle.x
+                    ball.vx = 0
+                    ball.vy = 0
+                    ball.y = self.paddle.y - ball.height
+                else:
+                    ball.rebound(self.paddle)
+                    ball.push(self.paddle)
 
             # Check collision with brickset
             if not ball.collides(self.brickset):
@@ -86,11 +98,12 @@ class PlayState(BaseState):
                 )
                 self.paddle.inc_size()
 
-            # Chance to generate two more balls
+            # Chance to generate a powerup
             if random.random() < 0.1:
                 r = brick.get_collision_rect()
+                powerup_name = random.choice(("TwoMoreBall", "StickyPaddle"))
                 self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
+                    self.powerups_abstract_factory.get_factory(powerup_name).create(
                         r.centerx - 8, r.centery - 8
                     )
                 )
@@ -102,6 +115,8 @@ class PlayState(BaseState):
 
         if not self.balls:
             self.lives -= 1
+            self.paddle.sticky = False
+            self.paddle.sticky_time_remaining = 0.0
             if self.lives == 0:
                 self.state_machine.change("game_over", score=self.score)
             else:
@@ -182,7 +197,15 @@ class PlayState(BaseState):
             powerup.render(surface)
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
-        if input_id == "move_left":
+        if input_id == "enter" and input_data.pressed:
+            for ball in self.balls:
+                if ball.stuck:
+                    ball.stuck = False
+                    ball.vx = random.randint(-80, 80)
+                    ball.vy = random.randint(-170, -100)
+                    settings.SOUNDS["paddle_hit"].play()
+                    break
+        elif input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED
             elif input_data.released and self.paddle.vx < 0:
