@@ -35,6 +35,8 @@ class Bird:
         if self.invincible:
             self.invincible_timer -= dt
             if self.invincible_timer <= 0:
+                settings.MUSICS["powerup"].stop()
+                settings.MUSICS["marios_way"].play(-1)
                 self.invincible = False
 
         self.vy += settings.GRAVITY * dt

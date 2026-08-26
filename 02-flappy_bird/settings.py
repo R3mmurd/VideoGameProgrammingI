@@ -80,7 +80,11 @@ SOUNDS = {
     "crush": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "crush.wav"),
 }
 
-pygame.mixer.music.load(BASE_DIR / "assets" / "sounds" / "marios_way.ogg")
+MUSICS = {
+    "marios_way": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "marios_way.ogg"),
+    "powerup": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "powerup.ogg"),
+}
+
 
 FONTS = {
     "medium": pygame.font.Font(BASE_DIR / "assets" / "fonts" / "font.ttf", MEDIUM_TEXT_SIZE),
