@@ -51,26 +51,27 @@ class World:
             if self.logs_spawn_timer >= settings.TIME_TO_SPAWN_LOGS:
                 self.logs_spawn_timer = 0.0
                 distance = settings.MAIN_SCROLL_SPEED * settings.TIME_TO_SPAWN_LOGS
-                max_delta_y = int(distance * 0.25)
+                max_delta_y = int(distance * 0.35)
                 delta_y = random.randint(-max_delta_y, max_delta_y)
+                gap_size = settings.LOGS_GAP * random.uniform(0.8, 1.2)
                 y = max(
-                    -settings.LOG_HEIGHT + 10 + settings.LOGS_GAP,
+                    -settings.LOG_HEIGHT + 10 + gap_size,
                     min(
                         self.last_log_y + delta_y,
-                        settings.VIRTUAL_HEIGHT + 90 - settings.LOG_HEIGHT,
+                        settings.VIRTUAL_HEIGHT + 90 - gap_size - settings.LOG_HEIGHT,
                     ),
                 )
                 self.last_log_y = y
 
                 if strategy is not None and strategy.CLOSING_LOGS:
                     r = random.random()
-                    if r < 0.2:
+                    if r < 0.4:
                         is_closing_log = True
                     else:
                         is_closing_log = False
                 else:
                     is_closing_log = False
-                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y, { "gap": settings.LOGS_GAP * random.uniform(0.8, 1.2), "is_closing_log": is_closing_log }))
+                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y, { "gap": gap_size, "is_closing_log": is_closing_log }))
 
         self.background_x += -settings.BACK_SCROLL_SPEED * dt
 

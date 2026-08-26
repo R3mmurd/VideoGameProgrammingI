@@ -19,25 +19,39 @@ from gale.text import render_text
 import settings
 from src.Bird import Bird
 from src.World import World
+from src.powerups.PowerUp import PowerUp
 
 from src.DifficultyStrategy import DifficultyStrategy, EasyStrategy
 
 
 class PauseState(BaseState):
-    def enter(self, world: Optional[World] = None, bird: Optional[Bird] = None, score: int = 0, strategy: Optional[DifficultyStrategy] = None) -> None:
+    def enter(
+        self,
+        world: Optional[World] = None,
+        bird: Optional[Bird] = None,
+        score: int = 0,
+        strategy: Optional[DifficultyStrategy] = None,
+        powerups: Optional[list[PowerUp]] = None,
+    ) -> None:
         self.strategy = strategy if strategy is not None else EasyStrategy()
         self.world = world if world is not None else World()
+        self.powerups = powerups if powerups is not None else []
         self.bird = bird if bird is not None else Bird(
             settings.VIRTUAL_WIDTH / 2 - settings.BIRD_WIDTH / 2,
             settings.VIRTUAL_HEIGHT / 2 - settings.BIRD_HEIGHT / 2,
             settings.BIRD_WIDTH,
             settings.BIRD_HEIGHT,
         )
+        self.invincible_timer = self.bird.invincible_timer
         self.score = score
+        settings.MUSICS["powerup"].stop()
+        settings.MUSICS["marios_way"].play(-1)
 
     def render(self, surface: pygame.Surface) -> None:
         self.world.render(surface)
         self.bird.render(surface)
+        for powerup in self.powerups:
+            powerup.render(surface)
         render_text(
             surface,
             "Flappy Bird",
@@ -70,5 +84,18 @@ class PauseState(BaseState):
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "pause" and input_data.pressed:
-            self.state_machine.change("playing", self.world, self.bird, self.score, self.strategy)
+            self.bird.invincible_timer = self.invincible_timer
+            settings.MUSICS["marios_way"].stop()
+            if self.bird.invincible:
+                settings.MUSICS["powerup"].play()
+            else:
+                settings.MUSICS["marios_way"].play(-1)
+            self.state_machine.change(
+                "playing",
+                self.world,
+                self.bird,
+                self.score,
+                self.strategy,
+                self.powerups,
+            )
             

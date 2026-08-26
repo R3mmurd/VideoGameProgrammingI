@@ -10,7 +10,7 @@ from gale.text import render_text
 import settings
 from src.Bird import Bird
 from src.World import World
-from src.DifficultyStrategy import DifficultyStrategy, HardStrategy
+from src.DifficultyStrategy import DifficultyStrategy, EasyStrategy
 import src.powerups
 
 
@@ -22,7 +22,7 @@ class PlayingState(BaseState):
               strategy: Optional[DifficultyStrategy] = None,
               powerups: Optional[list] = None
     ) -> None:
-        self.strategy = strategy if strategy is not None else HardStrategy()
+        self.strategy = strategy if strategy is not None else EasyStrategy()
 
         self.powerups = powerups if powerups is not None else []
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
@@ -45,7 +45,8 @@ class PlayingState(BaseState):
                 self.bird.x = 0
             elif self.bird.x + settings.BIRD_WIDTH > settings.VIRTUAL_WIDTH:
                 self.bird.x = settings.VIRTUAL_WIDTH - settings.BIRD_WIDTH
-        self.world.update(dt, self.strategy)
+        world_speed = 2.0 if self.bird.invincible else 1.0
+        self.world.update(dt * world_speed, self.strategy)
 
         
 
@@ -53,14 +54,14 @@ class PlayingState(BaseState):
             if self.world.collides(self.bird.get_rect()):
                 settings.SOUNDS["explosion"].play()
                 settings.SOUNDS["hurt"].play()
-                self.state_machine.change("count_down")
+                self.state_machine.change("count_down", strategy=self.strategy)
                 return
 
         if self.world.update_scored(self.bird.get_rect()):
             self.score += 1
             settings.SOUNDS["score"].play()
 
-            if random.random() < 0.1 and self.strategy.POWERUP_SPAWN and not self.bird.invincible:
+            if random.random() < 0.3 and self.strategy.POWERUP_SPAWN and not self.bird.invincible:
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory("GhostBird").create(
                         self.bird.x, 0
@@ -69,7 +70,7 @@ class PlayingState(BaseState):
 
         # Update powerups
         for powerup in self.powerups:
-            powerup.update(dt)
+            powerup.update(dt * world_speed)
 
             if powerup.collides(self.bird):
                 powerup.take(self)
@@ -106,4 +107,11 @@ class PlayingState(BaseState):
             elif input_data.released and self.bird.vx > 0:
                 self.bird.vx = 0
         elif input_id == "pause" and input_data.pressed:
-            self.state_machine.change("pause", self.world, self.bird, self.score, strategy=self.strategy)
+            self.state_machine.change(
+                "pause",
+                self.world,
+                self.bird,
+                self.score,
+                strategy=self.strategy,
+                powerups=self.powerups,
+            )

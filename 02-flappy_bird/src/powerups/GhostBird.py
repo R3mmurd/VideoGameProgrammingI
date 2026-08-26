@@ -29,6 +29,7 @@ class GhostBird(PowerUp):
     def take(self, play_state: TypeVar("PlayState")) -> None:
         bird = play_state.bird
 
+        self.active = False
         bird.invincible = True
         bird.invincible_timer = 5  # 5 seconds of invincibility
         settings.MUSICS["marios_way"].stop()
