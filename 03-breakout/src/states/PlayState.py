@@ -36,6 +36,14 @@ class PlayState(BaseState):
             + settings.PADDLE_GROW_UP_POINTS * (self.paddle.size + 1) * self.level
         )
         self.powerups = params.get("powerups", [])
+        self.cannon_powerup = next(
+            (
+                powerup
+                for powerup in self.powerups
+                if getattr(powerup, "mounted", False)
+            ),
+            None,
+        )
 
         if not params.get("resume", False):
             self.balls[0].vx = random.randint(-80, 80)
@@ -56,8 +64,7 @@ class PlayState(BaseState):
             ball.update(dt)
             ball.solve_world_boundaries()
 
-            # Check collision with the paddle
-            if ball.collides(self.paddle):
+            if not getattr(ball, "is_cannon_ball", False) and ball.collides(self.paddle):
                 settings.SOUNDS["paddle_hit"].stop()
                 settings.SOUNDS["paddle_hit"].play()
                 if self.paddle.sticky:
@@ -79,9 +86,10 @@ class PlayState(BaseState):
             if brick is None:
                 continue
 
-            brick.hit()
+            brick.hit(ball.is_cannon_ball)
             self.score += brick.score()
-            ball.rebound(brick)
+            if not ball.is_cannon_ball:
+                ball.rebound(brick)
 
             # Check earn life
             if self.score >= self.points_to_next_live:
@@ -99,9 +107,10 @@ class PlayState(BaseState):
                 self.paddle.inc_size()
 
             # Chance to generate a powerup
-            if random.random() < 0.1:
+            if random.random() < 0.7:
                 r = brick.get_collision_rect()
-                powerup_name = random.choice(("TwoMoreBall", "StickyPaddle"))
+                # powerup_name = random.choice(("TwoMoreBall", "StickyPaddle"))
+                powerup_name = "Cannons"
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory(powerup_name).create(
                         r.centerx - 8, r.centery - 8
@@ -198,13 +207,17 @@ class PlayState(BaseState):
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "enter" and input_data.pressed:
-            for ball in self.balls:
-                if ball.stuck:
-                    ball.stuck = False
-                    ball.vx = random.randint(-80, 80)
-                    ball.vy = random.randint(-170, -100)
-                    settings.SOUNDS["paddle_hit"].play()
-                    break
+            if self.cannon_powerup is not None:
+                self.cannon_powerup.fire(self)
+
+            if self.paddle.sticky:
+                for ball in self.balls:
+                    if ball.stuck:
+                        ball.stuck = False
+                        ball.vx = random.randint(-80, 80)
+                        ball.vy = random.randint(-170, -100)
+                        settings.SOUNDS["paddle_hit"].play()
+                        break
         elif input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED

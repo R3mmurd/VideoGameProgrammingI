@@ -83,7 +83,10 @@ TEXTURES = {
     "spritesheet": pygame.image.load(BASE_DIR / "assets" / "graphics" / "breakout.png"),
     "hearts": pygame.image.load(BASE_DIR / "assets" / "graphics" / "hearts.png"),
     "arrows": pygame.image.load(BASE_DIR / "assets" / "graphics" / "arrows.png"),
+    "cannon": pygame.image.load(BASE_DIR / "assets" / "graphics" / "cannon.png"),
 }
+
+TEXTURES["cannon"].set_colorkey((0, 0, 0))
 
 FRAMES = {
     "paddles": generate_paddle_frames(),
