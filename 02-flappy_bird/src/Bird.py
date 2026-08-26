@@ -20,7 +20,11 @@ class Bird:
         self.width: float = width
         self.height: float = height
         self.vy: float = 0.0
+        self.vx: float = 0.0
         self.jumping: bool = False
+        self.invincible: bool = False
+        self.invincible_timer: float = 0.0
+        self.powerup_music_fading: bool = False
 
     def get_rect(self) -> pygame.Rect:
         return pygame.Rect(round(self.x), round(self.y), self.width, self.height)
@@ -28,7 +32,17 @@ class Bird:
     def jump(self) -> None:
         self.jumping = True
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, horizontal_movement: bool = False) -> None:
+        if self.invincible:
+            self.invincible_timer -= dt
+            if self.invincible_timer <= 3 and not self.powerup_music_fading:
+                settings.MUSICS["powerup"].fadeout(3000)
+                self.powerup_music_fading = True
+            if self.invincible_timer <= 0:
+                settings.MUSICS["powerup"].stop()
+                settings.MUSICS["marios_way"].play(-1)
+                self.invincible = False
+
         self.vy += settings.GRAVITY * dt
 
         if self.jumping:
@@ -37,6 +51,11 @@ class Bird:
             self.jumping = False
 
         self.y += self.vy * dt
+        if horizontal_movement:
+            self.x += self.vx * dt
 
     def render(self, surface: pygame.Surface) -> None:
-        surface.blit(settings.TEXTURES["bird"], self.get_rect())
+        if not self.invincible:
+            surface.blit(settings.TEXTURES["bird"], self.get_rect())
+        else:
+            surface.blit(settings.TEXTURES["ghost"], self.get_rect())

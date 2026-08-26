@@ -20,12 +20,13 @@ from src import states
 
 class FlappyBird(Game):
     def init(self) -> None:
-        pygame.mixer.music.play(loops=-1)
+        settings.MUSICS["marios_way"].play(-1)
         self.state_machine = StateMachine(
             {
                 "title": states.TitleScreenState,
                 "count_down": states.CountDownState,
                 "playing": states.PlayingState,
+                "pause": states.PauseState,
             }
         )
         self.state_machine.change("title")

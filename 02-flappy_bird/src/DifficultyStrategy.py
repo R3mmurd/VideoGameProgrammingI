@@ -1,0 +1,42 @@
+from abc import ABC, abstractmethod
+import settings
+import random
+
+class DifficultyStrategy(ABC):
+    @abstractmethod
+    def apply_settings(self) -> None:
+        pass
+
+    @abstractmethod
+    def update(self, dt: float) -> None:
+        pass
+
+
+class EasyStrategy(DifficultyStrategy):
+    def __init__(self):
+        self.BIRD_HORIZONTAL_MOVEMENT = False
+        self.RANDOM_LOG_PAIRS = False
+        self.CLOSING_LOGS = False
+        self.POWERUP_SPAWN = False
+
+    def apply_settings(self) -> None:
+        settings.TIME_TO_SPAWN_LOGS = 1.5
+        self.BIRD_HORIZONTAL_MOVEMENT = False
+
+    def update(self, dt: float) -> None:
+        # Standard behavior, no dynamic scaling needed
+        pass
+
+class HardStrategy(DifficultyStrategy):
+    def __init__(self):
+        self.BIRD_HORIZONTAL_MOVEMENT = True
+        self.RANDOM_LOG_PAIRS = True
+        self.CLOSING_LOGS = False
+        self.POWERUP_SPAWN = True
+
+    def apply_settings(self) -> None:
+        settings.TIME_TO_SPAWN_LOGS = 1.5
+        self.BIRD_HORIZONTAL_MOVEMENT = True
+
+    def update(self, dt: float) -> None:
+        settings.TIME_TO_SPAWN_LOGS = random.uniform(settings.MIN_TIME_TO_SPAWN_LOGS, settings.MAX_TIME_TO_SPAWN_LOGS)

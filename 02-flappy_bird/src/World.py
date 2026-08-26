@@ -10,7 +10,7 @@ background/ground, and the log pairs the bird must fly through.
 """
 
 import random
-from typing import List
+from typing import List, Optional
 
 import pygame
 
@@ -18,6 +18,8 @@ from gale.factory import Factory
 
 import settings
 from src.LogPair import LogPair
+
+from src.DifficultyStrategy import DifficultyStrategy
 
 
 class World:
@@ -27,7 +29,7 @@ class World:
         self.ground_x: float = 0.0
         self.logs: List[LogPair] = []
         self.logs_spawn_timer: float = 0.0
-        self.last_log_y: float = -settings.LOG_HEIGHT + random.randint(0, 80) + 20
+        self.last_log_y: float = -settings.LOG_HEIGHT + 20 + settings.LOGS_GAP
         self.log_pair_factory: Factory = Factory(LogPair)
 
     def reset(self, generate_logs: bool) -> None:
@@ -42,21 +44,39 @@ class World:
     def update_scored(self, rect: pygame.Rect) -> bool:
         return any(log_pair.update_scored(rect) for log_pair in self.logs)
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, strategy: DifficultyStrategy) -> None:
         if self.generate_logs:
             self.logs_spawn_timer += dt
 
             if self.logs_spawn_timer >= settings.TIME_TO_SPAWN_LOGS:
                 self.logs_spawn_timer = 0.0
+                distance = settings.MAIN_SCROLL_SPEED * settings.TIME_TO_SPAWN_LOGS
+                
+                if strategy.RANDOM_LOG_PAIRS:
+                    max_delta_y = int(distance * 0.35)
+                    delta_y = random.randint(-max_delta_y, max_delta_y)
+                    gap_size = settings.LOGS_GAP * random.uniform(0.8, 1.2)
+                else:
+                    delta_y = 0
+                    gap_size = settings.LOGS_GAP
                 y = max(
-                    -settings.LOG_HEIGHT + 10,
+                    -settings.LOG_HEIGHT + 10 + gap_size,
                     min(
-                        self.last_log_y + random.randint(-20, 20),
-                        settings.VIRTUAL_HEIGHT + 90 - settings.LOG_HEIGHT,
+                        self.last_log_y + delta_y,
+                        settings.VIRTUAL_HEIGHT + 90 - gap_size - settings.LOG_HEIGHT,
                     ),
                 )
                 self.last_log_y = y
-                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y))
+
+                if strategy is not None and strategy.CLOSING_LOGS:
+                    r = random.random()
+                    if r < 0.4:
+                        is_closing_log = True
+                    else:
+                        is_closing_log = False
+                else:
+                    is_closing_log = False
+                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y, { "gap": gap_size, "is_closing_log": is_closing_log }))
 
         self.background_x += -settings.BACK_SCROLL_SPEED * dt
 
