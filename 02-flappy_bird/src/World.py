@@ -70,7 +70,7 @@ class World:
                         is_closing_log = False
                 else:
                     is_closing_log = False
-                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y, { "is_closing_log": is_closing_log }))
+                self.logs.append(self.log_pair_factory.create(settings.VIRTUAL_WIDTH, y, { "gap": settings.LOGS_GAP * random.uniform(0.8, 1.2), "is_closing_log": is_closing_log }))
 
         self.background_x += -settings.BACK_SCROLL_SPEED * dt
 

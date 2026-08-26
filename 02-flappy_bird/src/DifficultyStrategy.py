@@ -16,7 +16,7 @@ class EasyStrategy(DifficultyStrategy):
     def __init__(self):
         self.BIRD_HORIZONTAL_MOVEMENT = False
         self.CLOSING_LOGS = False
-        self.POWERUP_SPAWN = True
+        self.POWERUP_SPAWN = False
 
     def apply_settings(self) -> None:
         settings.TIME_TO_SPAWN_LOGS = 1.5
@@ -37,4 +37,4 @@ class HardStrategy(DifficultyStrategy):
         self.BIRD_HORIZONTAL_MOVEMENT = True
 
     def update(self, dt: float) -> None:
-        settings.TIME_TO_SPAWN_LOGS = random.uniform(0.8, 3)
+        settings.TIME_TO_SPAWN_LOGS = random.uniform(1, 4)

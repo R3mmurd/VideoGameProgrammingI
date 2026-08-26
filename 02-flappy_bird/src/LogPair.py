@@ -16,10 +16,10 @@ import settings
 
 
 class LogPair:
-    def __init__(self, x: float, y: float, is_closing_log: bool = True) -> None:
+    def __init__(self, x: float, y: float, gap: float, is_closing_log: bool = True) -> None:
         self.x: float = x
         self.y: float = y
-        self.current_gap = settings.LOGS_GAP
+        self.current_gap = gap
         self.is_closing_log = is_closing_log
         self.closing = False
         self.scored: bool = False
