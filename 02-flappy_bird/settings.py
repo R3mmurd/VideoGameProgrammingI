@@ -55,6 +55,10 @@ JUMP_TAKEOFF_SPEED = GRAVITY / 6
 BIRD_VELOCITY_X = GRAVITY / 10
 
 TIME_TO_SPAWN_LOGS = 1.5
+MIN_TIME_TO_SPAWN_LOGS = 1
+MAX_TIME_TO_SPAWN_LOGS = 3
+
+POWERUP_SPAWN_CHANCE = 0.5
 
 MEDIUM_TEXT_SIZE = 18
 HUGE_TEXT_SIZE = 56
@@ -79,6 +83,7 @@ SOUNDS = {
     "hurt": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "hurt.wav"),
     "score": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "score.wav"),
     "crush": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "crush.wav"),
+    "countdown": pygame.mixer.Sound(BASE_DIR / "assets" / "sounds" / "countdown.ogg"),
 }
 
 MUSICS = {

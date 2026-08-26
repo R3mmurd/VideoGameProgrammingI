@@ -61,7 +61,7 @@ class PlayingState(BaseState):
             self.score += 1
             settings.SOUNDS["score"].play()
 
-            if random.random() < 0.3 and self.strategy.POWERUP_SPAWN and not self.bird.invincible:
+            if random.random() < settings.POWERUP_SPAWN_CHANCE and self.strategy.POWERUP_SPAWN and not self.bird.invincible:
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory("GhostBird").create(
                         self.bird.x, 0

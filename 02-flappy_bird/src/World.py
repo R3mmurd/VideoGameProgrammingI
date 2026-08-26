@@ -29,7 +29,7 @@ class World:
         self.ground_x: float = 0.0
         self.logs: List[LogPair] = []
         self.logs_spawn_timer: float = 0.0
-        self.last_log_y: float = -settings.LOG_HEIGHT + random.randint(0, 80) + 20 + settings.LOGS_GAP
+        self.last_log_y: float = -settings.LOG_HEIGHT + 20 + settings.LOGS_GAP
         self.log_pair_factory: Factory = Factory(LogPair)
 
     def reset(self, generate_logs: bool) -> None:
@@ -44,16 +44,21 @@ class World:
     def update_scored(self, rect: pygame.Rect) -> bool:
         return any(log_pair.update_scored(rect) for log_pair in self.logs)
 
-    def update(self, dt: float, strategy: Optional[DifficultyStrategy] = None) -> None:
+    def update(self, dt: float, strategy: DifficultyStrategy) -> None:
         if self.generate_logs:
             self.logs_spawn_timer += dt
 
             if self.logs_spawn_timer >= settings.TIME_TO_SPAWN_LOGS:
                 self.logs_spawn_timer = 0.0
                 distance = settings.MAIN_SCROLL_SPEED * settings.TIME_TO_SPAWN_LOGS
-                max_delta_y = int(distance * 0.35)
-                delta_y = random.randint(-max_delta_y, max_delta_y)
-                gap_size = settings.LOGS_GAP * random.uniform(0.8, 1.2)
+                
+                if strategy.RANDOM_LOG_PAIRS:
+                    max_delta_y = int(distance * 0.35)
+                    delta_y = random.randint(-max_delta_y, max_delta_y)
+                    gap_size = settings.LOGS_GAP * random.uniform(0.8, 1.2)
+                else:
+                    delta_y = 0
+                    gap_size = settings.LOGS_GAP
                 y = max(
                     -settings.LOG_HEIGHT + 10 + gap_size,
                     min(

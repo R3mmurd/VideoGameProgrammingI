@@ -26,7 +26,7 @@ class TitleScreenState(BaseState):
         self.selected_difficulty = 0
 
     def update(self, dt: float) -> None:
-        self.world.update(dt)
+        self.world.update(dt, self.strategies[self.selected_difficulty])
 
     def render(self, surface: pygame.Surface) -> None:
         self.world.render(surface)

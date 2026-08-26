@@ -26,6 +26,7 @@ class CountDownState(BaseState):
         self.strategy = strategy if strategy is not None else EasyStrategy()
         self.counter = 3
         self.timer = 0.0
+        settings.SOUNDS["countdown"].play()
 
     def update(self, dt: float) -> None:
         self.timer += dt
@@ -38,7 +39,7 @@ class CountDownState(BaseState):
                 self.state_machine.change("playing", world=self.world, strategy=self.strategy)
                 return
 
-        self.world.update(dt)
+        self.world.update(dt, self.strategy)
 
     def render(self, surface: pygame.Surface) -> None:
         self.world.render(surface)

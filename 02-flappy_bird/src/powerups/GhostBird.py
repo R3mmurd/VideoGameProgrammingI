@@ -32,5 +32,6 @@ class GhostBird(PowerUp):
         self.active = False
         bird.invincible = True
         bird.invincible_timer = 5  # 5 seconds of invincibility
+        bird.powerup_music_fading = False
         settings.MUSICS["marios_way"].stop()
         settings.MUSICS["powerup"].play()
