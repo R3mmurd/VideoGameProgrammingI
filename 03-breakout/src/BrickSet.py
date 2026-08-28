@@ -57,6 +57,34 @@ class Brickset:
 
         return None
 
+    def explode(self, center: Brick) -> int:
+        """Destroy the impacted brick and its direct neighbors."""
+        center_pos = next(
+            pos for pos, brick in self.bricks.items() if brick is center
+        )
+        score = 0
+
+        positions = (
+            center_pos,
+            (center_pos[0] - 1, center_pos[1]),
+            (center_pos[0] + 1, center_pos[1]),
+            (center_pos[0], center_pos[1] - 1),
+            (center_pos[0], center_pos[1] + 1),
+            (center_pos[0] - 1, center_pos[1] - 1),
+            (center_pos[0] - 1, center_pos[1] + 1),
+            (center_pos[0] + 1, center_pos[1] - 1),
+            (center_pos[0] + 1, center_pos[1] + 1),
+        )
+        for pos in positions:
+            brick = self.get_brick(*pos)
+            if brick is None or brick.broken:
+                continue
+
+            brick.hit()
+            score += brick.score()
+
+        return score
+
     def update(self, dt: float) -> None:
         to_del = []
         for pos, brick in self.bricks.items():

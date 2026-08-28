@@ -56,6 +56,11 @@ class PlayState(BaseState):
         self.paddle.update(dt)
 
         for ball in self.balls:
+            if getattr(ball, "is_explosive", False):
+                ball.explosive_time_remaining -= dt
+                if ball.explosive_time_remaining <= 0:
+                    ball.is_explosive = False
+
             if ball.stuck:
                 ball.x = self.paddle.x + ball.stuck_offset_x
                 ball.y = self.paddle.y - ball.height
@@ -64,7 +69,7 @@ class PlayState(BaseState):
             ball.update(dt)
             ball.solve_world_boundaries()
 
-            if not getattr(ball, "is_cannon_ball", False) and ball.collides(self.paddle):
+            if not ball.is_cannon_ball and ball.collides(self.paddle):
                 settings.SOUNDS["paddle_hit"].stop()
                 settings.SOUNDS["paddle_hit"].play()
                 if self.paddle.sticky:
@@ -86,8 +91,12 @@ class PlayState(BaseState):
             if brick is None:
                 continue
 
-            brick.hit(ball.is_cannon_ball)
-            self.score += brick.score()
+            if getattr(ball, "is_explosive", False):
+                self.score += self.brickset.explode(brick)
+            else:
+                brick.hit(ball.is_cannon_ball)
+                self.score += brick.score()
+
             if not ball.is_cannon_ball:
                 ball.rebound(brick)
 
@@ -107,10 +116,11 @@ class PlayState(BaseState):
                 self.paddle.inc_size()
 
             # Chance to generate a powerup
-            if random.random() < 0.7:
+            if random.random() < 0.1:
                 r = brick.get_collision_rect()
-                # powerup_name = random.choice(("TwoMoreBall", "StickyPaddle"))
-                powerup_name = "Cannons"
+                powerup_name = random.choice(
+                    ("TwoMoreBall", "StickyPaddle", "Cannons", "ExplosiveBall")
+                )
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory(powerup_name).create(
                         r.centerx - 8, r.centery - 8
