@@ -34,7 +34,7 @@ class World:
         self.generate_logs = generate_logs
 
     def collides(self, rect: pygame.Rect) -> bool:
-        if rect.bottom >= settings.VIRTUAL_HEIGHT:
+        if rect.bottom >= settings.VIRTUAL_HEIGHT or rect.top <= 0:
             return True
 
         return any(log_pair.collides(rect) for log_pair in self.logs)
