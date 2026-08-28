@@ -217,9 +217,6 @@ class PlayState(BaseState):
 
     def on_input(self, input_id: str, input_data: InputData) -> None:
         if input_id == "enter" and input_data.pressed:
-            if self.cannon_powerup is not None:
-                self.cannon_powerup.fire(self)
-
             if self.paddle.sticky:
                 for ball in self.balls:
                     if ball.stuck:
@@ -228,6 +225,9 @@ class PlayState(BaseState):
                         ball.vy = random.randint(-170, -100)
                         settings.SOUNDS["paddle_hit"].play()
                         break
+        elif input_id == "fire" and input_data.pressed:
+            if self.cannon_powerup is not None:
+                self.cannon_powerup.fire(self)"
         elif input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED

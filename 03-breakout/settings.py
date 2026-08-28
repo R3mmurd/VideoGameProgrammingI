@@ -31,6 +31,7 @@ input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RIGHT, "move_ri
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_DOWN, "move_down")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_LEFT, "move_left")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_SPACE, "pause")
+input_handler.InputHandler.set_keyboard_action(input_handler.KEY_F, "fire")
 
 TITLE = "Breakout"
 
